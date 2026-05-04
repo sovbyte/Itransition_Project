@@ -7,15 +7,16 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Itransition_Project/Itransition_Project.csproj", "Itransition_Project/"]
-RUN dotnet restore "Itransition_Project/Itransition_Project.csproj"
+
+COPY ["Itransition_Project.csproj", "./"]
+RUN dotnet restore "Itransition_Project.csproj"
+
 COPY . .
-WORKDIR "/src/Itransition_Project"
-RUN dotnet build "./Itransition_Project.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Itransition_Project.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Itransition_Project.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Itransition_Project.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
