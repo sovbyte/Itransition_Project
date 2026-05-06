@@ -6,4 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Itransition_Project.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : IdentityDbContext<User>(options);
+    : IdentityDbContext<User>(options)
+{
+    
+}
