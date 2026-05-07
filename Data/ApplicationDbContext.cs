@@ -8,6 +8,15 @@ namespace Itransition_Project.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<User>(options)
 {
+    public DbSet<Inventory> Inventories { get; set; }
+    public DbSet<Item> Items { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<InventoryTag> InventoryTags { get; set; }
+    public DbSet<InventoryAccess> InventoryAccesses { get; set; }
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<Like> Likes { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -19,11 +28,23 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasKey(ia => new { ia.InventoryId, ia.UserId });
 
         builder.Entity<Item>()
-            .HasIndex(i => new { i.InventoryId , i.CustomIdValue })
-            .IsUnique();    
-        
+            .HasIndex(i => new { i.InventoryId, i.CustomIdValue })
+            .IsUnique();
+
         builder.Entity<Like>()
             .HasIndex(l => new { l.UserId, l.ItemId })
             .IsUnique();
-}
+
+        builder.Entity<Inventory>()
+            .HasMany(i => i.Items)
+            .WithOne(i => i.Inventory)
+            .HasForeignKey(it => it.InventoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Entity<Comment>()
+            .HasOne(c => c.Inventory)
+            .WithMany(i => i.Comments)
+            .HasForeignKey(ci => ci.InventoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
 }
