@@ -72,7 +72,7 @@ public class Inventory
     
     public virtual ICollection<Item> Items { get; set; } = new List<Item>();
     public virtual ICollection<InventoryTag> InventoryTags { get; set; } = new List<InventoryTag>();
-    public virtual ICollection<InventoryAccess> InventoryAccesses { get; set; } = new List<InventoryAccess>();
+    public virtual ICollection<InventoryUser> InventoryAccesses { get; set; } = new List<InventoryUser>();
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
     
     [Timestamp]

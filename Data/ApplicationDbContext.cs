@@ -13,7 +13,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Category> Categories { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<InventoryTag> InventoryTags { get; set; }
-    public DbSet<InventoryAccess> InventoryAccesses { get; set; }
+    public DbSet<InventoryUser> InventoryAccesses { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Like> Likes { get; set; }
 
@@ -24,7 +24,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<InventoryTag>()
             .HasKey(it => new { it.InventoryId, it.TagId });
 
-        builder.Entity<InventoryAccess>()
+        builder.Entity<InventoryUser>()
             .HasKey(ia => new { ia.InventoryId, ia.UserId });
 
         builder.Entity<Item>()

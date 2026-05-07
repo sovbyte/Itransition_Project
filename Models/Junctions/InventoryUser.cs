@@ -1,6 +1,6 @@
 namespace Itransition_Project.Models;
 
-public class InventoryAccess
+public class InventoryUser
 {
     public int Id { get; set; }
     public int InventoryId { get; set; }
