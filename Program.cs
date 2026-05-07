@@ -9,28 +9,21 @@ Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
-var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("DefaultConnection");
-//var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
-//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-// var connectionString =
-//     builder.Configuration.GetValue<string>("DB_CONNECTION_STRING")
-//     ?? builder.Configuration.GetConnectionString("DefaultConnection");
-
-builder.Services.AddOpenApi();
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
+                       ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
-
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
 
 builder.Services.AddIdentityApiEndpoints<User>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-var app = builder.Build();
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+builder.Services.AddOpenApi();
 
-app.MapIdentityApi<User>();
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
@@ -41,8 +34,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", () => "API is working");
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.MapGet("/admin", ()  => "Admin is working").RequireAuthorization();
+app.MapIdentityApi<User>();
+
+app.MapGet("/", () => "API is working");
+app.MapGet("/admin", () => "Admin is working").RequireAuthorization();
 app.MapGet("/user", () => "User is working");
+
 app.Run();
