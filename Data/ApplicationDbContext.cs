@@ -1,5 +1,4 @@
 using Itransition_Project.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,8 +51,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     {
         var entries = ChangeTracker
             .Entries()
-            .Where(e => e.Entity is BaseEntity &&
-                        (e.State == EntityState.Added || e.State == EntityState.Modified));
+            .Where(e => e is { Entity: BaseEntity, State: EntityState.Added or EntityState.Modified });
 
         foreach (var entityEntry in entries)
         {

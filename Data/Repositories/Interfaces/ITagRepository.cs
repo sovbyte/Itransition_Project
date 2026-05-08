@@ -1,6 +1,8 @@
+using Itransition_Project.Models;
+
 namespace Itransition_Project.Data.Repositories.Interfaces;
 
-public interface ITagRepository
+public interface ITagRepository : IRepository<Tag>
 {
-    //TODO
+    public Task<Tag?> GetByNameAsync(string name);
 }
