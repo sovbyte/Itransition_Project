@@ -1,6 +1,6 @@
 using Itransition_Project.Models;
 
-namespace Itransition_Project.Data.Repositories;
+namespace Itransition_Project.Data.Repositories.Interfaces;
 
 public interface IRepository<T> where T : BaseEntity
 {

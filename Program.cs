@@ -1,6 +1,7 @@
 using DotNetEnv;
 using Itransition_Project.Data;
 using Itransition_Project.Data.Repositories;
+using Itransition_Project.Data.Repositories.Interfaces;
 using Itransition_Project.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,8 +26,11 @@ builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
-//TODO inject other repositories dependencies
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
 
+    
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
