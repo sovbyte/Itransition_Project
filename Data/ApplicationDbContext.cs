@@ -47,4 +47,26 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasForeignKey(ci => ci.InventoryId)
             .OnDelete(DeleteBehavior.Cascade);
     }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var entries = ChangeTracker
+            .Entries()
+            .Where(e => e.Entity is BaseEntity &&
+                        (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+        foreach (var entityEntry in entries)
+        {
+            var entity = (BaseEntity)entityEntry.Entity;
+            
+            entity.UpdatedAt =  DateTime.UtcNow;
+
+            if (entityEntry.State == EntityState.Added)
+            {
+                entity.CreatedAt = DateTime.UtcNow;
+            }
+        }
+        
+        return base.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -1,5 +1,6 @@
 using DotNetEnv;
 using Itransition_Project.Data;
+using Itransition_Project.Data.Repositories;
 using Itransition_Project.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,9 @@ builder.Services.AddIdentityApiEndpoints<User>()
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
+
+builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+//TODO inject other repositories dependencies
 
 var app = builder.Build();
 

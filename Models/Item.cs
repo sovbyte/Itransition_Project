@@ -2,16 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Itransition_Project.Models;
 
-public class Item
+public class Item : BaseEntity
 {
-    public int Id { get; set; }
     public string CustomIdValue { get; set; }
     
     public int InventoryId { get; set; }
     public virtual Inventory Inventory { get; set; }
     
     public string? CreatedById { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
     
     public string? String1 { get; set; }
     public string? String2 { get; set; }
@@ -32,7 +30,4 @@ public class Item
     public string? FileUrl1 { get; set; }
     public string? FileUrl2 { get; set; }
     public string? FileUrl3 { get; set; }
-    
-    [Timestamp]
-    public byte[] RawVersion { get; set; }
 }

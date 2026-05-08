@@ -3,9 +3,8 @@ using Superpower.Parsers;
 
 namespace Itransition_Project.Models;
 
-public class Inventory
+public class Inventory : BaseEntity
 {
-    public int InventoryId { get; set; }
     [Required]
     public string Title { get; set; }
     public string? Description { get; set; }
@@ -74,8 +73,4 @@ public class Inventory
     public virtual ICollection<InventoryTag> InventoryTags { get; set; } = new List<InventoryTag>();
     public virtual ICollection<InventoryUser> InventoryAccesses { get; set; } = new List<InventoryUser>();
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
-    
-    [Timestamp]
-    public byte[] RawVersion { get; set; }
-    
 }
