@@ -5,5 +5,8 @@ namespace Itransition_Project.Data.Repositories.Interfaces;
 public interface IInventoryRepository : IRepository<Inventory>
 {
     Task<IEnumerable<Inventory>> GetByCreatorIdAsync(string  userId);
+    
     Task<Inventory?> GetWithDetailsAsync(int id);
+    
+    Task<IEnumerable<Inventory>> GetPopularInventoriesAsync(int count = 5);
 }

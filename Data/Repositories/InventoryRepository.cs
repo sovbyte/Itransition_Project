@@ -21,4 +21,15 @@ public class InventoryRepository(ApplicationDbContext context) : BaseRepository<
             .Include(i => i.Category)
             .FirstOrDefaultAsync(i => i.Id == id);
     }
+
+    public async Task<IEnumerable<Inventory>> GetPopularInventoriesAsync(int count = 5)
+    {
+        return await _context.Inventories
+            .OrderByDescending(i => i.Items.Count)
+            .Include(i => i.Category)
+            .Include(i => i.Creator)
+            .Take(count)
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }
