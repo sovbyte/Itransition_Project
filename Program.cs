@@ -5,6 +5,7 @@ using Itransition_Project.Data.Repositories;
 using Itransition_Project.Data.Repositories.Interfaces;
 using Itransition_Project.Models;
 using Itransition_Project.Services;
+using Itransition_Project.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -73,6 +74,9 @@ builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 
 builder.Services.AddTransient<IEmailSender<User>, SmtpEmailSender>();
+
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
