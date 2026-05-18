@@ -4,6 +4,7 @@ using Itransition_Project.Data;
 using Itransition_Project.Data.Repositories;
 using Itransition_Project.Data.Repositories.Interfaces;
 using Itransition_Project.Models;
+using Itransition_Project.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +52,7 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = builder.Configuration["JwtAudience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtKey"])),
         };
-    })
+    }) 
     .AddGoogle(googleOptions => {
         googleOptions.ClientId = builder.Configuration["GoogleClientId"];
         googleOptions.ClientSecret = builder.Configuration["GoogleClientSecret"];
@@ -71,7 +72,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 
-    
+builder.Services.AddTransient<IEmailSender<User>, SmtpEmailSender>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
