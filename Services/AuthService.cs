@@ -13,9 +13,58 @@ public class AuthService(UserManager<User> userManager, IEmailSender<User> email
     private readonly IConfiguration _config = config;
 
 
-    public Task<AuthResult> RegisterAsync(RegisterDto registerDto)
+    public async Task<AuthResult> RegisterAsync(RegisterDto registerDto)
     {
-        throw new NotImplementedException();
+        var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
+        if (existingUser != null)
+        {
+            return new AuthResult
+            {
+                IsSuccess = false,
+                Errors = ["Email is already taken."]
+            };
+        }
+        
+
+        var user = new User
+        {
+            Email = registerDto.Email,
+            UserName = registerDto.Username,
+        };
+        
+        var result = await _userManager.CreateAsync(user, registerDto.Password);
+        
+        if (!result.Succeeded)
+        {
+            return new AuthResult()
+            {
+                IsSuccess = false,
+                Errors = result.Errors.Select(e => e.Description)
+            };
+        }
+        
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        //todo move this
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
+        var confirmationLink = $"{frontendUrl}/confirm-email?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+
+        try
+        {
+            await _emailSender.SendConfirmationLinkAsync(user, user.Email, confirmationLink);
+        }
+        catch (Exception e)
+        {
+            return new AuthResult()
+            {
+                IsSuccess = true,
+                Errors = ["Account created, but we failed to send the confirmation email. Please request a new link."]
+            };
+        }
+
+        return new AuthResult
+        {
+            IsSuccess = true
+        };
     }
 
     public Task<AuthResult> LoginAsync(LoginDto loginDto)
