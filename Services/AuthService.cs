@@ -5,17 +5,14 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Itransition_Project.Services;
 
-public class AuthService(UserManager<User> userManager, IEmailSender<User> emailSender, IConfiguration config)
+public class AuthService(UserManager<User> userManager, IEmailSender<User> emailSender, IConfiguration config, JwtService jwtService)
     : IAuthService
 {
-    private readonly UserManager<User>  _userManager = userManager;
-    private readonly IEmailSender<User> _emailSender = emailSender;
     private readonly IConfiguration _config = config;
-
 
     public async Task<AuthResult> RegisterAsync(RegisterDto registerDto)
     {
-        var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
+        var existingUser = await userManager.FindByEmailAsync(registerDto.Email);
         if (existingUser != null)
         {
             return new AuthResult
@@ -25,14 +22,13 @@ public class AuthService(UserManager<User> userManager, IEmailSender<User> email
             };
         }
         
-
         var user = new User
         {
             Email = registerDto.Email,
             UserName = registerDto.Username,
         };
         
-        var result = await _userManager.CreateAsync(user, registerDto.Password);
+        var result = await userManager.CreateAsync(user, registerDto.Password);
         
         if (!result.Succeeded)
         {
@@ -43,14 +39,14 @@ public class AuthService(UserManager<User> userManager, IEmailSender<User> email
             };
         }
         
-        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         //todo move this
         var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
         var confirmationLink = $"{frontendUrl}/confirm-email?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
 
         try
         {
-            await _emailSender.SendConfirmationLinkAsync(user, user.Email, confirmationLink);
+            await emailSender.SendConfirmationLinkAsync(user, user.Email, confirmationLink);
         }
         catch (Exception e)
         {
@@ -67,9 +63,45 @@ public class AuthService(UserManager<User> userManager, IEmailSender<User> email
         };
     }
 
-    public Task<AuthResult> LoginAsync(LoginDto loginDto)
+    public async Task<AuthResult> LoginAsync(LoginDto loginDto)
     {
-        throw new NotImplementedException();
+        var user = await userManager.FindByEmailAsync(loginDto.Email);
+
+        if (user == null)
+        {
+            return new AuthResult
+            {
+                IsSuccess = false,
+                Errors = ["Invalid email or password."]
+            };
+        }
+
+        var isPasswordValid = await userManager.CheckPasswordAsync(user, loginDto.Password);
+        if (!isPasswordValid)
+        {
+            return new AuthResult
+            {
+                IsSuccess = false,
+                Errors = ["Invalid email or password."]
+            };
+        }
+        
+        if (!user.EmailConfirmed)
+        {
+            return new AuthResult
+            {
+                IsSuccess = false,
+                Errors = ["You must confirm your email before logging in."]
+            };
+        }
+        
+        var token =  await jwtService.GenerateJwtTokenAsync(user);
+
+        return new AuthResult()
+        {
+            IsSuccess = true,
+            Token = token
+        };
     }
 
     public Task<AuthResult> ConfirmEmailAsync(string email, string token)
