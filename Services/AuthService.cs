@@ -3,19 +3,15 @@ using Itransition_Project.Data.DTOs;
 using Itransition_Project.Models;
 using Itransition_Project.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Itransition_Project.Services;
 
 public class AuthService(
     UserManager<User> userManager,
     IEmailSender<User> emailSender,
-    IConfiguration config,
     JwtService jwtService)
     : IAuthService
 {
-    private readonly IConfiguration _config = config;
-
     public async Task<AuthResult> RegisterAsync(RegisterDto registerDto)
     {
         var existingUser = await userManager.FindByEmailAsync(registerDto.Email);
@@ -234,29 +230,38 @@ public class AuthService(
             return new AuthResult { IsSuccess = false, Errors = ["Unsupported provider."] };
         }
         
-        var user = await userManager.FindByLoginAsync(provider, providerKey) ?? (await userManager.FindByEmailAsync(email) ?? new User()
-        {
-            Email = email,
-            UserName = email,
-            EmailConfirmed = true
-        });
-        
-        var createResult = await userManager.CreateAsync(user);
-        if (!createResult.Succeeded)
-        {
-            return new AuthResult { IsSuccess = false, Errors = createResult.Errors.Select(e => e.Description) };
-        }
-        
-        var userLoginInfo = new  UserLoginInfo(provider, username, providerKey);
-        var linkResult = await userManager.AddLoginAsync(user, userLoginInfo);
+        var user = await userManager.FindByLoginAsync(provider, providerKey);
 
-        if (!linkResult.Succeeded)
+        if (user == null)
         {
-            return new AuthResult { IsSuccess = false, Errors = ["Failed to link external account."] };
+            user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                user = new User()
+                {
+                    Email = email,
+                    UserName = email,
+                    EmailConfirmed = true
+                };
+                
+                var createResult = await userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                {
+                    return new AuthResult { IsSuccess = false, Errors = createResult.Errors.Select(e => e.Description) };
+                }
+            }
+            
+            var userLoginInfo = new  UserLoginInfo(provider, username, providerKey);
+            var linkResult = await userManager.AddLoginAsync(user, userLoginInfo);
+
+            if (!linkResult.Succeeded)
+            {
+                return new AuthResult { IsSuccess = false, Errors = ["Failed to link external account."] };
+            }
         }
         
         var jwtToken = await jwtService.GenerateJwtTokenAsync(user);
-        
         return new AuthResult { IsSuccess = true, Token = jwtToken };
     }
 }
