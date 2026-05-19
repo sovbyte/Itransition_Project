@@ -9,7 +9,7 @@ namespace Itransition_Project.Services;
 public class AuthService(
     UserManager<User> userManager,
     IEmailSender<User> emailSender,
-    JwtService jwtService)
+    IJwtService jwtService)
     : IAuthService
 {
     public async Task<AuthResult> RegisterAsync(RegisterDto registerDto)
