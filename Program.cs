@@ -73,6 +73,11 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 
+builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddTransient<IEmailSender<User>, SmtpEmailSender>();
 
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -93,6 +98,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapIdentityApi<User>();
+
+app.MapControllers();
 
 app.MapGet("/", () => "API is working");
 app.MapGet("/admin", () => "Admin is working").RequireAuthorization();
